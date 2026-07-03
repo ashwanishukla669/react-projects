@@ -3,9 +3,35 @@ const app = express();
 
 app.use(express.json());
 
-// Post
+// Get
+app.get("/students", (req, res)=>{    
 
-const students = [];
+    return res.status(200).json({
+        success: true,
+        students
+    });
+    
+});
+
+
+// Post
+const students = [
+    {
+        name: "Mohini",
+        course: "UI Designer",
+        age: 45
+    },
+    {
+        name: "Ashwani",
+        course: "AI Full Stack",
+        age: 32
+    },
+    {
+        name: "Aman",
+        course: "React",
+        age: 25
+    }
+];
 
 app.post("/students", (req, res)=>{
 
@@ -43,18 +69,81 @@ app.post("/students", (req, res)=>{
         message: "Student added succesfully",
         students     
     })
-
 });
 
-app.get("/students", (req, res)=>{
-    console.log(typeof req.params.id);
+app.get("/students/:id", (req, res)=>{
+
+   const id = req.params.id;
+   const student = students[id];
+
+   console.log(id);
     
-    return res.json({
+    if(!student){
+        return res.status(404).json({
+            success: false,
+            message: "Student not found"
+        });
+    }
+
+    return res.status(200).json({
         success: true,
-        students    
+        student
     });
 });
 
+// Put
+
+app.put("/students/:id", (req, res)=> {
+
+    const id = req.params.id;
+
+    const name = req.body.name;
+    const course = req.body.course;
+    const age = req.body.age;
+
+    if(!students[id]){
+        return res.status(404).json({
+            success: false,
+            message: "Student not found"
+        });
+    }
+
+    students[id] = {
+        name,
+        course,
+        age
+    }
+
+    return res.status(200).json({
+        success: true,
+        message: "Student updated successfully",
+        student: students[id]
+    });
+});
+
+// Delete
+
+app.delete("/students/:id", (req, res)=> {
+
+    const id = req.params.id;
+
+    if(!students[id]){
+        return res.status(404).json({
+            success: false,
+            message: "Student not found"
+        });
+    }
+
+    // Delete the student
+    students.splice(id, 1);
+
+    return res.status(200).json({
+        success: true,
+        message: "Student deleted successfully",
+        students
+    });
+
+});
 
 
 app.listen(3000, ()=>{
