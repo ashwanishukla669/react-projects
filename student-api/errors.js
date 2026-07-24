@@ -10,4 +10,4 @@ function third() {
     throw new Error("Boom!");
 }
 
-first();
+first(); 

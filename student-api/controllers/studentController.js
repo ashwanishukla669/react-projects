@@ -1,37 +1,50 @@
-const students = [];
+const Student = require("../models/Student");
 
-const getStudents = (req, res) => {
-  return res.status(200).json({
-    success: true,
-    students,
-  });
-};
-
-const getStudentById = (req, res) => {
-  try {
-    const id = req.params.id;
-    const student = students[id];
-
-    if (!student) {
-      return res.status(404).json({
-        success: false,
-        message: "Student not found",
-      });
-    }
-
+const getStudents = async (req, res) => {
+  
+  try{
+    const students = await Student.find();
     return res.status(200).json({
       success: true,
-      student,
+      students
     });
-  } catch (error) {
+  } catch(error) {
     return res.status(500).json({
       success: false,
       message: error.message,
     });
   }
+}
+
+const getStudentById = async (req, res) => {
+
+  try {
+    const id = req.params.id;
+    const student = await Student.findById(id);    
+
+    if(!student){
+      return res.status(404).json({
+        success: false,
+        message: "Student not found"
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      student
+    });
+     
+  } catch (error) {   
+
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+
 };
 
-const createStudent = (req, res) => {
+const createStudent = async (req, res) => {
   try {
     const name = req.body.name;
     const course = req.body.course;
@@ -58,16 +71,16 @@ const createStudent = (req, res) => {
       });
     }
 
-    students.push({
+    const student = await Student.create({
       name,
       course,
-      age,
+      age
     });
 
     return res.status(201).json({
       success: true,
       message: "Student created successfully",
-      students,
+      student,
     });
 
   } catch (err) {
@@ -78,36 +91,48 @@ const createStudent = (req, res) => {
   }
 };
 
-const updateStudent = (req, res) => {
+const updateStudent = async (req, res) => {  
   try {
+
+    // URL se id lena
     const id = req.params.id;
-    const name = req.body.name;
-    const course = req.body.course;
-    const age = req.body.age;
 
-    if (!students[id]) {
-      return res.status(404).json({
-        success: false,
-        message: "Student not found",
-      });
-    }
-
-    students[id] = {
+    // Body se updated values lena
+    const { name, course, age } = req.body; 
+    
+    // Student ko update karna
+    const student = await Student.findByIdAndUpdate(
+      id, // 1. Kis student ko update karna hai 
+    {
       name,
       course,
       age,
-    };
+    },  // 2. Kya update karna hai
+    {
+      new: true,
+    } // 3. Updated document return karo  
+  );
 
-    return res.status(200).json({
+  if(!student){
+    return res.status(404).json({
+      success: false,
+      message: "Student not found"
+    });
+  }
+
+  return res.status(200).json({
       success: true,
       message: "Student updated succesfully",
       students,
     });
+
   } catch (error) {
+
     return res.status(500).json({
       success: false,
       message: error.message,
     });
+
   }
 };
 
