@@ -14,7 +14,7 @@ const getStudents = async (req, res) => {
       message: error.message,
     });
   }
-}
+};
 
 const getStudentById = async (req, res) => {
 
@@ -123,7 +123,7 @@ const updateStudent = async (req, res) => {
   return res.status(200).json({
       success: true,
       message: "Student updated succesfully",
-      students,
+      student
     });
 
   } catch (error) {
@@ -136,29 +136,32 @@ const updateStudent = async (req, res) => {
   }
 };
 
-const deleteStudent = (req, res) => {
+const deleteStudent = async (req, res) => {
   try {
+
     const id = req.params.id;
 
-    if (!students[id]) {
+    const student = await Student.findByIdAndDelete(id);
+
+    if (!student) {
       return res.status(404).json({
         success: false,
         message: "Student not found",
       });
-    }
-
-    students.splice(id, 1);
+    }    
 
     return res.status(200).json({
       success: true,
       message: "Student deleted successfully",
-      students,
+      student,
     });
   } catch (error) {
+
     return res.status(500).json({
       success: false,
       message: error.message,
     });
+    
   }
 };
 
